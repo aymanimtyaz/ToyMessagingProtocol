@@ -4,6 +4,7 @@
 ### Features
 - Users can set  unique usernames before joining a room
 - Text chat only for now
+- See who else is typing in real time
 
 ### Under The Hood
 - Uses WebSockets as the underlying transport layer
