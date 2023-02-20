@@ -1,0 +1,198 @@
+
+.topbar {
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.tmp-chat-heading-area {
+    width: fit-content;
+    margin: 10px;
+}
+
+.topbar-buttons {
+    width: fit-content;
+    margin: 10px;
+}
+
+.connection-button {
+    display: inline;
+}
+
+.tmp-chat-heading {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #000000;
+    color: #FFFFFF;
+    display: inline;
+}
+
+.tmp-chat-heading-blinker {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #000000;
+    color: #FFFFFF;
+    display: inline;
+}
+
+.message-area {
+    width: 50%;
+    margin: auto;
+    overflow-y: scroll;
+    padding-top: 50px;
+    margin-bottom: 50px; /* Adjust as necessary */
+    z-index: 1;
+}
+
+.client-message-bubble {
+    margin: 10px;
+    float: right;
+    clear: both;
+    max-width: 70%;
+    min-width: 30%;
+    width: fit-content;
+}
+
+.client-message-username-area {
+    float: right;
+    clear: both;
+    width: fit-content;
+    background-color: #1982FC;
+    margin: 0px;
+    border-radius: 20px;
+    border-bottom-right-radius: 0px;
+    padding: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.client-username-text {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: #FFFFFF;
+    margin: 0px;
+}
+
+.client-message-text-area {
+    clear: both;
+    background-color: #1982FC;
+    border-radius: 20px;
+    border-top-right-radius: 0px;
+    padding: 10px;
+}
+
+.client-message-text {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    word-wrap: break-word; 
+    white-space: pre-wrap;
+    text-align: justify;
+    margin: 0px;
+    color: #FFFFFF;
+}
+
+.peer-message-bubble {
+    margin: 10px;
+    float: left;
+    clear: both;
+    max-width: 70%;
+    min-width: 30%;
+    width: fit-content;
+}
+
+.peer-message-username-area {
+    float: left;
+    clear: both;
+    width: fit-content;
+    background-color: #c4c3c3;
+    margin: 0px;
+    border-radius: 20px;
+    border-bottom-left-radius: 0px;
+    padding: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.peer-username-text {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: #000000;
+    margin: 0px;
+}
+
+.peer-message-text-area {
+    clear: both;
+    background-color: #c4c3c3;
+    border-radius: 20px;
+    border-top-left-radius: 0px;
+    padding: 10px;
+}
+
+.peer-message-text {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    text-align: justify;
+    margin: 0px;
+    color: #000000;
+}
+
+.downbar {
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.message-input-container {
+    margin: 10px;
+}
+
+.message-input {
+}
+
+.send-message-button {
+    margin: 10px;
+}
+
+.username-modal {
+    text-align: center;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    left: 50%;
+    bottom: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    background-color: antiquewhite;
+    border-radius: 20px;
+}
+
+.username-modal-text-area {
+}
+
+.username-modal-text {
+}
+
+.username-modal-input-area {
+}
+
+.username-modal-input {
+    display: inline;
+}
+
+.username-submit-button {
+    display: inline;
+}
+
+
+
+

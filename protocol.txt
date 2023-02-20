@@ -1,0 +1,109 @@
+
+- Toy Messaging Protocol (TMP)
+
+- PROTOCOL STATES, TRANSITIONS, AND RULES
+- default state of a client (state on initially establishing a WebSocket connection) will be CONNECTED_INIT, this
+  states causes the server to run some pre connection checks to see if the client can connect to the chatroom or not
+- the client's state will be upgraded to CONNECTED_USR_NOTSET once the server's checks have been passed in the 
+  in the CONNECTED_INIT state of the client. At this point, the client must send a viable username to connect to
+  the chatroom.
+- once the client sends a username (must be unique on the server) it's state will be upgraded to CONNECTED_USR_SET
+- if the client sends a username that is already in use, the server will respond with a message indicating that the
+  username is already in user, at this point, the client app will have to request a new username from the user
+- if the websocket connection gets shut down at any point, or if the user wishes to leave the chatroom, the server 
+  will downgrade the client's state to CONNECTED_INIT and/or remove the client from the list of connected clients.
+- a DISCONNECTED state will also be included on the server side, this will be used as a signal to disconnect the underlying 
+  websocket connection.
+
+- BROADCASTING MESSAGES
+- the server will maintain 2 separate sets of connected clients, one set for clients with the CONNECTED_USR_NOTSET state and 
+  one set for clients with the CONNECTED_USR_SET state
+- the server will only broadcast messages to clients having the CONNECTED_USR_SET state
+
+- HANDLING IDLE CLIENTS
+- if a client doesn't transition from CONNECTED_USR_NOTSET to CONNECTED_USR_SET in (USR_NOTSET_TIMEOUT) amount of time 
+  the server closes the WebSocket connection
+- if a client with the state CONNECTED_USR_SET doesn't send a message to the chat for longer than (USR_SET_TIMEOUT) 
+  amount of time, the server closes the WebSocket connection
+
+- SERVER LIMITS
+- if a user connects to the server when the number of connected users is equal to SERVER_MAX_CLIENTS, the server sends a 
+  SERVER_CLIENT_LIMIT_REACHED message to the client and closes the connection
+
+
+- CLIENT MESSAGE FORMAT
+- HEADERS
+- the messages will start with "tmp://", (6 bytes) signifying that the protocol being used is indeed TMP. 
+  Thus, the first 6 bytes (bytes 0-5 inclusive) of a message will be taken up by the protocol signifier.
+- there is no need for identifying the user in the messages as the each user is associated to a single 
+  WebSocket connection
+- after the TMP protocol signifier, the next part of the message will be what the message is, for example
+  a client having the state CONNECTED_USR_NOTSET could set this part as SET_USR, signifying to the server 
+  that it is trying to set their username in the chatroom. This part of the message will be called "MESSAGE_TYPE".
+  A Maximum of 32 bytes (bytes 6 - 37 inclusive) will be set aside exclusively for this segment of the message, if
+  less than 32 bits are needed, the remaining allotted space will be filled with whitespace.
+- the part after "MESSAGE_TYPE" will be a terminator segment "::/" signifying that the message type part 
+  has been terminated, this terminator segment will take up 3 bytes (bytes 38-40 inclusive)
+- After the "MESSAGE_TYPE" terminator, the client's username will be set, if applicable. The username can consist of
+  a maximum of 20 bytes (bytes 41 to 60 inclusive), if the username has not been set, this part will be filled with
+  whitespace. This part of the message will be called "USERNAME"
+- After the "USERNAME" segment will come another terminator segment "::/", this terminator segment will consist of 3
+  bytes (bytes 61-63 inclusive). Thus, the headers of the message will conculude in exactly the first 64 bytes of the
+  message.
+- HEADER FORMAT: "tmp://MESSAGE_TYPE_IN_MAXIMUM_32_BYTES::/USER_IN_MAX_20_BYTES::/"
+- MESSAGE BODY
+- The message body will start right after the username terminator (from and including the 65th byte (byte no. 64)) and 
+  onwards)
+- FINAL MESSAGE FORMAT
+- "tmp://MESSAGE_TYPE_IN_MAXIMUM_32_BYTES::/USER_IN_MAX_20_BYTES::/MESSAGE_BODY"
+
+- SERVER MESSAGE FORMAT
+- the server will also use the same message format as the client, the username part will be used to signify the user
+  who sent the message to the chatroom
+
+- CLIENT MESSAGE TYPES
+- SET_USR                           -   a client at state CONNECTED_USR_NOTSET is trying to set a username in the chatroom, a username must be 
+                                        sent in the username segment of the message. Any message body will be ignored.
+- CHAT_MSSG                         -   a client at state CONNECTED_USR_SET is trying to send a message to the chatroom. The message body will
+                                        be taken as the message that the client is trying to send.
+- EXIT_CHAT                         -   a client that sends this message type will be disconnected from the server, regardless of its state
+
+- SERVER MESSAGE TYPES
+- STATE_UPG_1                       -   a server sends this message to a client when it upgrades its state from CONNECTED_INIT to CONNECTED_USR_NOTSET,
+                                        the client should also upgrade its state from CONNECTED_INIT to CONNECTED_USR_NOTSET on receiving this message.
+                                        The message body will be ignored in this type of message
+- STATE_UPG_2                       -   a server sends this message to a client when it accepts the username sent from the client and upgrades its state
+                                        from CONNECTED_USR_NOTSET to CONNECTED_USR_SET, the client should also upgrade its state from CONNECTED_USR_NOTSET
+                                        to CONNECTED_USR_SET on receiving this message type from the server. The client can now send and receive messages
+                                        from the chatroom. The message body will be ignored in this type of message.
+- CHAT_MSSG                         -   a server will send this message type when it is sending a chat message to a client. Keep in mind that the messages 
+                                        that a client sends to the chatroom will always be echoed back to it. The username part of the message will have the
+                                        username of the user who sent the message to the chatroom
+- SET_USR_CONFLICT                  -   The server will send this message to a client having a state of CONNECTED_USR_NOTSET if the client sends a SET_USR
+                                        message with a username that is already in use with some other connected client, the client will have to set a 
+                                        different username and try again. The server will send the conflicting username along with this message as well.
+- DISCONNECT                        -   Standard disconnect sent by the server to a client. Client gets disconnected after.
+
+
+- CLIENT STATES
+- CONNECTED_INIT                    -   Initial/Default state of a client that has just established a WebSocket connection
+- CONNECTED_USR_NOTSET              -   State of a client after the server has allowed it to connect initially after running 
+                                        some checks, at this point the client must send a viable username to the server
+- CONNECTED_USR_SET                 -   Client state after a viable username has been selected, the client can now chat in
+                                        the chatroom
+
+- CLIENT PARAMETERS
+- CURRENT_STATE                     -   The current state of the client, one of CONNECTED_INIT, CONNECTED_USR_NOTSET, or CONNECTED_USR_SET
+- USERNAME                           -   If the client is in the state CONNECTED_USR_SET, its username will be put in this parameter
+
+- SERVER CONFIG
+- USR_NOTSET_TIMEOUT                -   Time given to a CONNECTED_USR_NOTSET client to transition to CONNECTED_USR_SET, in seconds
+- USR_SET_TIMEOUT                   -   Max idle time for a CONNECTED_USR_SET user, in seconds. The user gets disconnected if a message 
+                                        is not sent from the user in this time.
+- SERVER_MAX_CLIENTS                -   Upper limit on the number of clients that can join the chat
+
+- SERVER PARAMETERS
+- COUNT_CONNECTED_CLIENTS           -   A counter that counts the number of clients having either the state CONNECTED_USR_NOTSET or 
+                                        CONNECTED_USR_SET, this value is checked against SERVER_MAX_CLIENTS when a new client connects,
+                                        it is incremented when a client moves from the state CONNECTED_INIT to CONNECTED_USR_NOTSET and is
+                                        decremented when a client disconnects or moves back to the state CONNECTED_INIT

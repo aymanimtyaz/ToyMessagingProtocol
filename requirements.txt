@@ -1,0 +1,2 @@
+python-stateengine==0.0.1a1
+websockets==10.4
