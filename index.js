@@ -6,7 +6,7 @@ const TMP_SERVER_URI = "ws://0.0.0.0:5050"
 
 const tmp_client = new TMPClient(
     TMP_SERVER_URI,
-    render_new_message,
+    new_message_callback,
     server_connect_callback,
     request_username,
     rerequest_username,
@@ -20,6 +20,23 @@ const disconnect_button = document.getElementById("disconnect-button")
 const chat_area = document.getElementById("message-area")
 const main = document.getElementById("main")
 
+var current_typing = new Set()
+
+
+function render_current_typing() {
+    let current_typing_str = "";
+    if (current_typing.size == 0) {
+        current_typing_str = ""
+    } else if (current_typing.size == 1) {
+        current_typing_str = `${Array.from(current_typing)[0]} is typing...`
+    } else if (current_typing.size > 1 && current_typing.size < 4) {
+        current_typing_str = Array.from(current_typing).join(", ") + " are typing..."
+    } else {
+        current_typing_str = "many people are typing..."
+    }
+    const current_typing_text = document.getElementById("peer-typing-text")
+    current_typing_text.textContent = current_typing_str
+}
 
 function scrollToBottom(element) {
     element.scrollTop = element.scrollHeight - element.clientHeight
@@ -41,6 +58,21 @@ function render_new_message(message, user) {
         scrollToBottom(document.documentElement)
     } else {
         chat_area.insertAdjacentHTML("beforeend", new_peer_message_bubble)
+    }
+}
+
+function new_message_callback(message, user) {
+    if (message === "CHAT_TYPING_INDICATOR") {
+        if (user !== tmp_client._username) {
+            current_typing.add(user)
+            render_current_typing()
+            setTimeout(() => {
+                current_typing.delete(user)
+                render_current_typing()
+            }, 5000);
+        }
+    } else if (message.substring(0, 12) === "CHAT_MESSAGE") {
+        render_new_message(message.substring(13), user)
     }
 }
 
@@ -168,11 +200,26 @@ async function blink_underscore() {
     }
 }
 
+function typing_event_handler(event) {
+    if (event.key !== "Enter") {
+        const typing_message = "CHAT_TYPING_INDICATOR"
+        tmp_client.send_message(typing_message)
+        const message_input = document.getElementById("message-input")
+        message_input.removeEventListener("keydown", typing_event_handler)
+        setTimeout(() => {
+            message_input.addEventListener("keydown", typing_event_handler)
+        }, 5000);
+    }
+}
+
 function render_chat(client_username) {
     const username_modal = document.getElementById("username-modal")
     username_modal.parentNode.removeChild(username_modal)
     const content = `
         <div id="downbar" class="downbar">
+            <div class="peer-typing-indicator">
+                <p id="peer-typing-text" class="peer-typing-text"></p>
+            </div>
             <div class="message-input-container">
                 <input type="text" id="message-input" classname="message-input" placeholder="${client_username} says...">
             </div>
@@ -196,14 +243,16 @@ function render_chat(client_username) {
             if (event.key === "Enter") {
                 const message = message_input.value
                 if (message.length > 0) {
-                    tmp_client.send_message(message)
+                    const chat_message = `CHAT_MESSAGE ${message}`
+                    tmp_client.send_message(chat_message)
                     message_input.value = ""
                     render_client_message(message, tmp_client._username)
                 }
             }
         }
     )
-    chat_area.innerHTML = ``;
+    message_input.addEventListener("keydown", typing_event_handler)
+    // chat_area.innerHTML = ``;
     message_input.focus()
 }
 

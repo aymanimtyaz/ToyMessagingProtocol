@@ -1,5 +1,8 @@
 
 .topbar {
+    background-color: #FFFFFF;
+    opacity: 0.75;
+    top: 0;
     position: fixed;
     display: flex;
     justify-content: space-between;
@@ -141,25 +144,46 @@
 }
 
 .downbar {
+    background-color: #FFFFFF;
+    opacity: 1;
+    bottom: 0;
     position: fixed;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     width: 50%;
     left: 50%;
-    bottom: 0;
     transform: translateX(-50%);
+    bottom: 0;
     z-index: 2;
 }
 
+.peer-typing-indicator {
+    min-height: 10px;
+    margin: auto;
+    flex-basis: 100%;
+    width: fit-content;
+}
+
+.peer-typing-text {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 10px;
+    color: #9b9b9b;
+    margin: auto;
+    width: fit-content;
+}
+
 .message-input-container {
-    margin: 10px;
+    margin: 2px;
+    /* margin: 10px; */
 }
 
 .message-input {
 }
 
 .send-message-button {
-    margin: 10px;
+    margin: 2px;
+    /* margin: 10px; */
 }
 
 .username-modal {
@@ -192,7 +216,3 @@
 .username-submit-button {
     display: inline;
 }
-
-
-
-
