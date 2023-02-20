@@ -2,7 +2,7 @@
 ## A simple group chat messaging protocol
 
 ### Features
-- Users can set  unique usernames before joining room
+- Users can set  unique usernames before joining a room
 - Text chat only for now
 
 ### Under The Hood
