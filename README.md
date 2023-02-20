@@ -19,7 +19,7 @@ Clone this repo
 ```sh
 git clone https://github.com/aymanimtyaz/ToyMessagingProtocol.git
 ```
-Make a new python environment using your preffered environment tool (eg. venv, pipenv, etc.) and activate it
+Make a new python environment using your preferred environment tool (eg. venv, pipenv, etc.) and activate it
 ```sh
 python3 -m venv venv
 source venv/bin/activate
