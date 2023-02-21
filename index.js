@@ -67,7 +67,7 @@ function render_new_message(message, user) {
 
 function new_message_callback(message, user) {
     if (message === "CHAT_TYPING_INDICATOR") {
-        if (user !== tmp_client._username) {
+        if (user !== tmp_client.username) {
             current_typing.add(user)
             render_current_typing()
             setTimeout(() => {
@@ -202,6 +202,17 @@ async function blink_underscore() {
     }
 }
 
+function send_message() {
+    const message_input = document.getElementById("message-input")
+    const message = message_input.value.trimEnd()
+    if (message.length > 0) {
+        const chat_message = `CHAT_MESSAGE ${message}`
+        tmp_client.send_message(chat_message)
+        message_input.value = ""
+        render_client_message(message, tmp_client.username)
+    }
+}
+
 function typing_event_handler(event) {
     if (event.key !== "Enter") {
         const typing_message = "CHAT_TYPING_INDICATOR"
@@ -234,22 +245,11 @@ function render_chat(client_username) {
     const send_message_button = document.getElementById("send-message-button")
     const message_input = document.getElementById("message-input")
     send_message_button.onclick = (event) => {
-        const message = message_input.value
-        if (message.length > 0) {
-            tmp_client.send_message(message)
-            message_input.value = ""
-            render_client_message(message, tmp_client._username)
-        }
+        send_message()
     }
     message_input.addEventListener("keydown", function(event) {
             if (event.key === "Enter") {
-                const message = message_input.value
-                if (message.length > 0) {
-                    const chat_message = `CHAT_MESSAGE ${message}`
-                    tmp_client.send_message(chat_message)
-                    message_input.value = ""
-                    render_client_message(message, tmp_client._username)
-                }
+                send_message()
             }
         }
     )
