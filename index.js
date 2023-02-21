@@ -43,6 +43,10 @@ function scrollToBottom(element) {
 }
 
 function render_new_message(message, user) {
+    if (current_typing.has(user)) {
+        current_typing.delete(user)
+        render_current_typing()
+    }
     const new_peer_message_bubble = `
         <div class="peer-message-bubble">
             <div class="peer-message-username-area">
@@ -87,12 +91,10 @@ function render_client_message(message, user) {
             </div>
         </div>
     `
-    if (document.documentElement.scrollHeight - document.documentElement.clientHeight - document.documentElement.scrollTop <= 1) {
-        chat_area.insertAdjacentHTML("beforeend", new_client_message_bubble)
-        scrollToBottom(document.documentElement)
-    } else {
-        chat_area.insertAdjacentHTML("beforeend", new_client_message_bubble)
-    }
+    chat_area.insertAdjacentHTML("beforeend", new_client_message_bubble)
+    scrollToBottom(document.documentElement)
+    const message_input = document.getElementById("message-input")
+    message_input.addEventListener("keydown", typing_event_handler)
 }
 
 function server_connect_callback() {
